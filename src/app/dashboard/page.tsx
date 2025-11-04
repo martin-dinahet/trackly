@@ -1,27 +1,29 @@
-"use client";
-
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import type { FC } from "react";
-import { useCurrentUser } from "@/providers/user-provider";
+import { signOutAction } from "@/lib/actions/auth/sign-out-action";
+import { auth } from "@/lib/auth";
 
-const DashboardPage: FC = () => {
-  const { user, logout } = useCurrentUser();
-  if (!user) redirect("/login");
+export default async function DashboardPage() {
+  // Redirect to dashbaord if already signed in
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session) return redirect("/sign-in");
 
   return (
-    <div>
-      <h1>Welcome to the Dashboard!</h1>
-      <p>
-        username: <code>{user.username}</code>
-      </p>
-      <p>
-        email: <code>{user.email}</code>
-      </p>
-      <button type="button" onClick={logout}>
-        Logout
-      </button>
-    </div>
+    <main className="min-h-screen py-12 px-4">
+      <div className="max-w-2xl mx-auto">
+        <div className="space-y-4">
+          <h2 className="text-2xl font-semibold">{session.user.name}</h2>
+          <div className="text-sm text-muted">{session.user.email}</div>
+          <div className="text-xs text-muted">{session.user.id}</div>
+          <div className="mt-4">
+            <button className="btn btn-sm btn-outline" type="button" onClick={signOutAction}>
+              Sign out
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
   );
-};
-
-export default DashboardPage;
+}
