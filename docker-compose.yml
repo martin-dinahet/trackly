@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16
-    container_name: quickstart-database
+    container_name: trackit-database
     environment:
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
