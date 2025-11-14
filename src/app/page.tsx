@@ -1,9 +1,7 @@
-"use server";
-
-import type { FC } from "react";
-
-const Page: FC = async () => {
-  return <div>Hello, World!</div>;
-};
-
-export default Page;
+export default function HomePage() {
+  return (
+    <div>
+      <h1>Hello, World!</h1>
+    </div>
+  );
+}
