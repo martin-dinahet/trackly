@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import type { FC, PropsWithChildren } from "react";
-import { getCurrentUser } from "@/lib/actions/auth/get-current-user";
-import { CurrentUserProvider } from "@/providers/user-provider";
+import type { PropsWithChildren } from "react";
 import "@/tailwind.css";
 
 export const metadata: Metadata = {
@@ -9,18 +7,12 @@ export const metadata: Metadata = {
   description: "By Martin :>",
 };
 
-const RootLayout: FC<PropsWithChildren> = async ({ children }) => {
-  const currentUser = await getCurrentUser();
-
+export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="en">
       <body className="antialiased">
-        <CurrentUserProvider user={currentUser}>
-          <main>{children}</main>
-        </CurrentUserProvider>
+        <main>{children}</main>
       </body>
     </html>
   );
-};
-
-export default RootLayout;
+}

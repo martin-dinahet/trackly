@@ -1,91 +1,69 @@
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+generator client {
+  provider = "prisma-client-js"
+}
+
 model User {
-  id                  String            @id @default(cuid())
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+  sessions      Session[]
+  accounts      Account[]
 
-  username            String
-  email               String            @unique
-  password            String
-
-  habits             Habit[]
-
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
-}         
-
-model Habit           {
-  id                  String            @id @default(cuid())
-  userId              String
-
-  name                String
-  description         String?
-  frequencyType       FrequencyType     @default(DAILY)
-  targetPerWeek       Int?
-  archived            Boolean           @default(false)
-
-  user               User              @relation(fields: [userId], references: [id])
-  entries            HabitEntry[]
-  schedules          HabitSchedule[]
-  streak             Streak?
-
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
-
+  @@unique([email])
+  @@map("user")
 }
 
-model HabitEntry {
-  id                  String            @id @default(cuid())
-  habitId             String
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  date                DateTime
-  count               Int               @default(1)
-
-  habit               Habit             @relation(fields: [habitId], references: [id])
-  
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
-
-  @@unique([habitId, date])
+  @@unique([token])
+  @@map("session")
 }
 
-model HabitSchedule {
-  id                  String            @id @default(cuid())
-  habitId             String            
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
-  dayOfWeek           Int               // 0 (Sunday) to 6 (Saturday)
-  isActive            Boolean           @default(true)
-
-  habit               Habit             @relation(fields: [habitId], references: [id])
-
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
-
+  @@map("account")
 }
 
-model Streak {
-  id                  String            @id @default(cuid())
-  habitId             String            @unique
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
 
-  currentStreak      Int                @default(0)
-  longestStreak      Int                @default(0)
-  lastCompletedAt    DateTime?
-
-  habit               Habit             @relation(fields: [habitId], references: [id])
-
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
-}
-
-enum FrequencyType {
-  DAILY
-  WEEKLY
-  MONTHLY
+  @@map("verification")
 }
